@@ -1,4 +1,7 @@
+import { EventEmitter } from 'node:events';
 import sdk from 'matrix-js-sdk';
+
+class MatrixClientEmitter extends EventEmitter {}
 
 class matrixClient {
     // Private variables
@@ -9,6 +12,9 @@ class matrixClient {
     #_accessToken;
     #_rooms = [];
 
+    // Public
+    matrixClientEvents = new MatrixClientEmitter();
+    
     constructor({ baseUrl, username, password }) {
         this.#_baseUrl = baseUrl;
         this.#_username = username;
@@ -19,6 +25,7 @@ class matrixClient {
         this.onSync = this.onSync.bind(this);
         this.onRoomTimeline = this.onRoomTimeline.bind(this);
         this.getRooms = this.getRooms.bind(this);
+        this.getRoomId = this.getRoomId.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
     }
 
@@ -46,10 +53,14 @@ class matrixClient {
     getRooms() {
         console.log('getRooms');
         let rooms = this.#_client.getRooms();
-        this.#_rooms = rooms.map( room => ({ id: room.roomId, name: room.name }));
+        this.#_rooms = rooms.map( room => ({ id: room.roomId, name: room.normalizedName }));
         this.#_rooms.forEach(room => {
             console.log(`${room.name} = ${room.id}`);
         });
+    }
+    
+    getRoomId(name) {
+        return (this.#_rooms.find(room => room.name === name) || {}).id;
     }
     
     onSync(state, prevState, res) {
@@ -66,21 +77,19 @@ class matrixClient {
         }
         
         console.log(event.event);
-        // type = 'm.room.message'
-        // sender
-        // content
-            // msgtype = 'm.text'
-            // body = 'test'
-        // room_id
-        // timestamp  origin_server_ts
-        let messageEvent = event.event;
-        let age = ( (messageEvent.undefined || {}).age || 0);
-        if (messageEvent.type === 'm.room.message' && age <= 100) {
-            let body = (messageEvent.content || {}).body;
-            if (body === 'hello') {
-                this.sendMessage(messageEvent.room_id, 'This is hello from JavaScript!');
-            }
-        }
+        const messageEvent = event.event;
+        const content = (messageEvent.content || {}).body || `complex type: ${content.msgtype}`;
+        const roomName = room.normalizedName;
+
+        const message = {
+          sender: messageEvent.sender,
+            room: roomName,
+            room_id: messageEvent.room_id,
+            message: content,
+            timestamp: new Date(messageEvent.origin_server_ts) // UTC
+        };
+
+        this.matrixClientEvents.emit('onMessageRecv', message);
     }
     
     sendMessage(room, message) {
@@ -94,18 +103,10 @@ class matrixClient {
         this.#_accessToken = await this.#getAccessToken();
         if (this.#_accessToken) {
             this.#_client.startClient();
-
             this.#_client.once('sync', this.onSync);
             this.#_client.on('Room.timeline', this.onRoomTimeline);
-/*            this.#_client.on("event", function(event){
-                console.log(event.getType());
-                console.log(event);
-            });*/
-
-            //
         }
     }
-    
 }
 
 export default matrixClient;
