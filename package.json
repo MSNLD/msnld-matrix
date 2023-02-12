@@ -1,0 +1,20 @@
+{
+  "name": "msnld-chat",
+  "version": "1.0.0",
+  "description": "MSNLD MSN Chat Extensions for Matrix",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "matrix",
+    "chat",
+    "webchat"
+  ],
+  "author": "Sky",
+  "license": "MIT",
+  "dependencies": {
+    "matrix-js-sdk": "^23.2.0"
+  }
+}
