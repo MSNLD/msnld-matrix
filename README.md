@@ -7,7 +7,7 @@ Create `index.js` or something similar with the below code
 
 import matrixClient from './matrixClient.js';
 
-(async function run() {
+(async () => {
     console.log('Running...');
     
     const baseUrl = 'https://matrix.msnld.com';
