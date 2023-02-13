@@ -5,9 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "envFile": "${workspaceRoot}/.env",
+      "internalConsoleOptions": "openOnSessionStart",
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
+      "outputCapture": "std",
       "skipFiles": [
         "<node_internals>/**"
       ],
