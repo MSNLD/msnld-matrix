@@ -9,13 +9,19 @@ import matrixClient from './matrixClient';
 
   const client = new matrixClient({ baseUrl: baseUrl, username: username, password: password });
 
-  client.on('onMessageRecv', (recvData) => {
+  client.on('onMessageRecv', async (recvData) => {
     console.log(recvData);
     if (recvData.message.indexOf('hello') !== -1) {
-      const room_id = client.getRoomId(recvData.room);
+      const room_id = recvData.room_id;
       if (room_id) {
         client.sendMessage(room_id, 'Howdy!');
       }
+    }
+  });
+  client.once('syncComplete', async () => {
+    const room_id = await client.findRoomId('#TheLobby:msnld.com') || '';
+    if (room_id) {
+      await client.join(room_id);
     }
   });
 

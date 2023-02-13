@@ -55,6 +55,17 @@ class matrixClient extends EventEmitter {
     return (this._rooms.find((room) => room.name === name) || {}).id;
   }
 
+  async findRoomId(name: string) {
+    const room_info = await this._client.getRoomIdForAlias(name);
+    if (room_info) {
+      return room_info.room_id;
+    }
+  }
+  
+  async join(roomIdOrAlias: string) {
+    await this._client.joinRoom(roomIdOrAlias);
+  }
+
   private onSync(state: string, _prevState: string, _data: object) {
     console.log(`Client State ${state}`); // state will be 'PREPARED' when the client is ready to use
     if (state === 'PREPARED') {
