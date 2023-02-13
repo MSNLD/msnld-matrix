@@ -11,7 +11,7 @@ import matrixClient from './matrixClient';
 
   client.on('onMessageRecv', (recvData) => {
     console.log(recvData);
-    if (recvData.message.contains('hello')) {
+    if (recvData.message.indexOf('hello') !== -1) {
       const room_id = client.getRoomId(recvData.room);
       if (room_id) {
         client.sendMessage(room_id, 'Howdy!');

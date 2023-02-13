@@ -108,7 +108,7 @@ class matrixClient extends EventEmitter {
   async connect() {
     this._accessToken = await this.#getAccessToken();
     if (this._accessToken) {
-      this._client.startClient();
+      await this._client.startClient();
       // @ts-ignore
       this._client.once('sync', this.onSync.bind(this));
       // @ts-ignore
